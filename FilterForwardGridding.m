@@ -1,9 +1,13 @@
-function  [IMGF] = FilterForwardGridding(mc_kdata, coilsen, kerneldistance, xyz_index, matrixsize, index_smth2, win_3d)
+function  [IMGF] = FilterForwardGridding(mc_kdata, coilsen, kerneldistance, xyz_index, matrixsize, index_smth2, win_3d,w)
+
+ncoils = size(mc_kdata,2);
+nviews = size(mc_kdata,3);
+mc_kdata = mc_kdata.*repmat(w,[1 ncoils nviews]);
 
 xyz_index_gpu = gpuArray(double(xyz_index));
 kerneldistance_gpu = gpuArray(kerneldistance);
 
-ncoils = size(mc_kdata,2);
+
 IMGCoil = zeros(matrixsize,matrixsize,matrixsize,ncoils,'single');
 
 % xyz_index = cat(2,x_index,y_index,z_index);
