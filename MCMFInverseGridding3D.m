@@ -10,7 +10,7 @@ mf_kdata = cell(1,nframes);
 %         x_index{Nf}, y_index{Nf}, z_index{Nf}, index_smth2{Nf}, win_3d).*sqrt(repmat(w,[1 ncoils nviews]));
 % end
 for Nf = 1:nframes
-    mf_kdata{Nf} = MCInverseGridding3D(mf_img(:,:,:,Nf),coilsen, nsamps, nviews{Nf}, kerneldistance{Nf}, ...
+    mf_kdata{Nf} = MCInverseGridding3Dgpu(mf_img(:,:,:,Nf),coilsen, nsamps, nviews{Nf}, kerneldistance{Nf}, ...
         x_index{Nf}, y_index{Nf}, z_index{Nf}, index_smth2{Nf}, win_3d);
 end
 end
