@@ -14,7 +14,6 @@ IMGF = zeros(matrixsize, matrixsize, matrixsize, nframes);
 %mask
 for Nf = 1:nframes
     mc_kdata = mcmf_kdata{Nf};
-    IMGF(:,:,:,Nf) = MCForwardGridding3Daccum(mc_kdata, coilsen, kerneldistance{Nf}, x_index{Nf}, y_index{Nf}, z_index{Nf}, matrixsize, index_smth2{Nf}, win_3d);
+    IMGF(:,:,:,Nf) = MCForwardGridding3Dgpu(mc_kdata, coilsen, kerneldistance{Nf}, x_index{Nf}, y_index{Nf}, z_index{Nf}, matrixsize, index_smth2{Nf}, win_3d);
 end
-
 end

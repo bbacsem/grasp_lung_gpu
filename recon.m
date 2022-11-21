@@ -67,8 +67,8 @@ xyz_index = cat(2,x_index{1},y_index{1},z_index{1});
 
 g = gpuDevice();
 reset(g);
-
 tic
 [IMGF] = MCForwardGridding3Dgpu(kdatau{1}, coilsen, kerneldistance{1}, xyz_index, matrixsize, index_smth2{1}, win_3d);
 toc
-nii = make_nii(squeeze(abs(IMGF(221:660,221:660,221:660)))); save_nii(nii,'gpu_mask.nii');
+reset(g);
+% nii = make_nii(squeeze(abs(IMGF(221:660,221:660,221:660)))); save_nii(nii,'gpu_mask.nii');
