@@ -46,3 +46,4 @@ win_3d = max(win_3d,1);
 xyz_index = matrixsize*matrixsize*(double(z_index)-1) + matrixsize*(double(y_index)-1) + double(x_index);
 
 end
+%test
