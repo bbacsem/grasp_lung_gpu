@@ -64,4 +64,3 @@ end
 % % coilsen = coilsen/max(abs(coilsen(:)));
 % % clear coilsen_real coilsen_imag
 
-%%asdfasdf
