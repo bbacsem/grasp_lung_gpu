@@ -1,4 +1,4 @@
-function  [IMGF] = MCForwardGridding3Dgpu(mc_kdata, coilsen, kerneldistance, xyz_index, matrixsize, index_smth2, win_3d)
+function  [IMGF] = MaskForwardGridding(mc_kdata, coilsen, kerneldistance, xyz_index, matrixsize, index_smth2, win_3d)
 
 xyz_index_gpu = gpuArray(double(xyz_index));
 kerneldistance_gpu = gpuArray(kerneldistance);
