@@ -19,10 +19,10 @@ close all
 clearvars -except Gx Gy Gz fid Radius matrixsize 
 
 coilsen = zeros(880,880,880,30);
-% coilsen_real = single(niftiread('coilsen_real.nii'));
-% coilsen_imag = single(niftiread('coilsen_imag.nii'));
-% coilsen = complex(coilsen_real, coilsen_imag);
-% clear coilsen_real coilsen_imag
+coilsen_real = single(niftiread('coilsen_real.nii'));
+coilsen_imag = single(niftiread('coilsen_imag.nii'));
+coilsen = complex(coilsen_real, coilsen_imag);
+clear coilsen_real coilsen_imag
 
 
 k_angle = zeros(size(fid,1),3,size(fid,3));
@@ -31,7 +31,7 @@ for i = 1:size(fid,3)
     k_angle(:,2,i) = Gy(i)*Radius;
     k_angle(:,3,i) = Gz(i)*Radius;
 end
-clear Gx Gy Gz Radius
+clear Gx Gy Gz
 
 load('idx1_8.mat');load('idx2_8.mat');load('idx3_8.mat');load('idx4_8.mat');load('idx5_8.mat')
 index{1} = idx1_8;index{2} = idx2_8;index{3} = idx3_8;index{4} = idx4_8;index{5} = idx5_8;
@@ -47,9 +47,9 @@ for i = 1:nframes
 end
 
 %ram-lak filter for 3d k-space
-w = single((Radius).^2);
-Radius = single(Radius);
-ww = repmat(w,[1 ncoils nviews]);
+% w = single((Radius).^2);
+% Radius = single(Radius);
+% ww = repmat(w,[1 ncoils nviews]);
 
 for i = 1:nframes
     kdatau{i} = fid(:,:,index{i});
