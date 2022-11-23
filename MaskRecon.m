@@ -18,11 +18,12 @@ disp('finish load data')
 close all
 clearvars -except Gx Gy Gz fid Radius matrixsize 
 
+coilsen = zeros(880,880,880,30);
 % coilsen_real = single(niftiread('coilsen_real.nii'));
 % coilsen_imag = single(niftiread('coilsen_imag.nii'));
 % coilsen = complex(coilsen_real, coilsen_imag);
 % clear coilsen_real coilsen_imag
-coilsen = zeros(880,880,880,30);
+
 
 k_angle = zeros(size(fid,1),3,size(fid,3));
 for i = 1:size(fid,3)
@@ -74,4 +75,8 @@ tic
 [IMGF] = MaskForwardGridding(kdatau{1}, coilsen, kerneldistance{1}, xyz_index{1}, matrixsize, index_smth2{1}, win_3d, mask{1});
 toc
 reset(g);
+tic
+[mc_kdata] = InverseGridding(IMGF,coilsen, nsamps, nviews, kerneldistance, xyz_index, index_smth2, win_3d);
+toc
+
 % nii = make_nii(squeeze(abs(IMGF(221:660,221:660,221:660)))); save_nii(nii,'gpu_mask.nii');
