@@ -2,7 +2,7 @@ function  [IMGF] = MaskForwardGridding(mc_kdata, coilsen, kerneldistance, xyz_in
 
 xyz_index_gpu = gpuArray(double(xyz_index));
 kerneldistance_gpu = gpuArray(kerneldistance);
-IMGF = zeros(matrixsize,matrixsize,matrixsize,'single');
+IMGF_gpu = zeros(matrixsize,matrixsize,matrixsize,'single');
 ncoils = size(mc_kdata,2);
 
 mask_idx_gpu = gpuArray(mask.val_idx);
@@ -20,9 +20,9 @@ IMG = fftshift(fft(fftshift(kspace_gpu,1),[],1),1);
 IMG = fftshift(fft(fftshift(IMG,2),[],2),2);
 IMG = fftshift(fft(fftshift(IMG,3),[],3),3);
 
-IMGF = IMGF + IMG.*gpuArray(coilsen(:,:,:,i));
+IMGF_gpu = IMGF_gpu + IMG.*gpuArray(coilsen(:,:,:,i));
 end
 
-IMGF = IMGF./win_3d./sqrt(matrixsize*matrixsize*matrixsize);
+IMGF = gather(IMGF_gpu./win_3d./sqrt(matrixsize*matrixsize*matrixsize));
 
 end

@@ -23,7 +23,7 @@ coilsen_real = single(niftiread('coilsen_real.nii'));
 coilsen_imag = single(niftiread('coilsen_imag.nii'));
 coilsen = complex(coilsen_real, coilsen_imag);
 clear coilsen_real coilsen_imag
-
+disp('finish load coil sensitivity')
 
 k_angle = zeros(size(fid,1),3,size(fid,3));
 for i = 1:size(fid,3)
