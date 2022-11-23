@@ -63,17 +63,14 @@ for nf = 1:nframes
     k2 = k(:,2,:);
     k3 = k(:,3,:);
     ktraj = [k1(:),k2(:),k3(:)];
-    [kerneldistance{nf}, x_index{nf}, y_index{nf}, z_index{nf}, index_smth2{nf}, win_3d] = setup3d(ktraj,matrixsize);
+    [kerneldistance{nf}, xyz_index{nf}, index_smth2{nf}, mask{nf}, win_3d] = setup3d(ktraj,matrixsize);
 end
 clear k k1 k2 k3 ktraj
-
-xyz_index = cat(2,x_index{1},y_index{1},z_index{1});
-
 
 g = gpuDevice();
 reset(g);
 tic
-[IMGF] = MCForwardGridding3Dgpu(kdatau{1}, coilsen, kerneldistance{1}, xyz_index, matrixsize, index_smth2{1}, win_3d);
+[IMGF] = MCForwardGridding3Dgpu(kdatau{1}, coilsen, kerneldistance{1}, xyz_index{1}, matrixsize, index_smth2{1}, win_3d, mask{1});
 toc
 reset(g);
 % nii = make_nii(squeeze(abs(IMGF(221:660,221:660,221:660)))); save_nii(nii,'gpu_mask.nii');

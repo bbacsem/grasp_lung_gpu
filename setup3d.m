@@ -1,4 +1,4 @@
-function [kerneldistance, x_index,y_index,z_index, index_smth2, win_3d] = setup3d(ktraj,matrixsize)
+function [kerneldistance, xyz_index, index_smth2, mask, win_3d] = setup3d(ktraj,matrixsize)
 % trajectory setup
 ktraj_grid = ktraj*(matrixsize-3)+(matrixsize+1)/2;
 
@@ -22,6 +22,7 @@ index_smth2 = find(dist <= 2);
 
 x_index = single(x_index(index_smth2)); y_index = single(y_index(index_smth2)); z_index = single(z_index(index_smth2));
 dist_x = dist_x(index_smth2); dist_y = dist_y(index_smth2); dist_z = dist_z(index_smth2);
+xyz_index = cat(2,x_index,y_index,z_index);
 
 beta = 5.7567;
 window = kaiser(40003,beta);
@@ -43,7 +44,10 @@ wf = abs( 4./besseli(0,beta).*sin(z)./z );
 win_3d = W1.*W2.*W3;
 win_3d = max(win_3d,1);
 
-xyz_index = matrixsize*matrixsize*(double(z_index)-1) + matrixsize*(double(y_index)-1) + double(x_index);
+%calculate mask in advance
+mask1 = accumarray(double(xyz_index),kerneldistance,[matrixsize matrixsize matrixsize]);
+mask.val_idx = find(mask1 ~= 0);
+mask.val = mask(mask.val_idx)+10*eps;
 
 end
 %test
