@@ -39,7 +39,8 @@ clear idx1_8 idx2_8 idx3_8 idx4_8 idx5_8
 nsamps = size(fid,1);
 ncoils = size(fid,2);
 nviews = size(fid,3);
-nframes = size(index,2);
+% nframes = size(index,2);
+nframes=1;
 for i = 1:nframes
     nsampviews{i} = size(index{i},1);
 end
@@ -70,7 +71,7 @@ clear k k1 k2 k3 ktraj
 g = gpuDevice();
 reset(g);
 tic
-[IMGF] = MCForwardGridding3Dgpu(kdatau{1}, coilsen, kerneldistance{1}, xyz_index{1}, matrixsize, index_smth2{1}, win_3d, mask{1});
+[IMGF] = MaskForwardGridding(kdatau{1}, coilsen, kerneldistance{1}, xyz_index{1}, matrixsize, index_smth2{1}, win_3d, mask{1});
 toc
 reset(g);
 % nii = make_nii(squeeze(abs(IMGF(221:660,221:660,221:660)))); save_nii(nii,'gpu_mask.nii');
