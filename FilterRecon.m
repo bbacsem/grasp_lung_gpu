@@ -30,7 +30,7 @@ for i = 1:size(fid,3)
     k_angle(:,2,i) = Gy(i)*Radius;
     k_angle(:,3,i) = Gz(i)*Radius;
 end
-clear Gx Gy Gz Radius
+clear Gx Gy Gz
 
 load('idx1_8.mat');load('idx2_8.mat');load('idx3_8.mat');load('idx4_8.mat');load('idx5_8.mat')
 index{1} = idx1_8;index{2} = idx2_8;index{3} = idx3_8;index{4} = idx4_8;index{5} = idx5_8;
