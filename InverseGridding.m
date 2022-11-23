@@ -1,10 +1,11 @@
-function  [mc_kdata] = MCInverseGridding3Dgpu(img,coilsen, nsamps, nviews, kerneldistance, x_index, y_index, z_index, index_smth2, win_3d)
+function  [mc_kdata] = InverseGridding(img,coilsen, nsamps, nviews, kerneldistance, xyz_index, index_smth2, win_3d)
 %multicoil inverse gridding
 %image to kspace
 ncoils = size(coilsen,4);
 matrixsize = size(img,1);
 mc_kdata = zeros(nsamps,ncoils,nviews);
-index = gpuArray(matrixsize*matrixsize*(z_index-1) + matrixsize*(y_index-1) + x_index);
+xyz_index = gpuArray(xyz_index);
+index = matrixsize*matrixsize*(xyz_index(:,3)-1) + matrixsize*(xyz_index(:,2)-1) + xyz_index(:,1);
 
 img_gpu = gpuArray(img);
 kerneldistance_gpu = gpuArray(kerneldistance);
