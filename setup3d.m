@@ -45,9 +45,11 @@ win_3d = W1.*W2.*W3;
 win_3d = max(win_3d,1);
 
 %calculate mask in advance
-mask1 = accumarray(double(xyz_index),kerneldistance,[matrixsize matrixsize matrixsize]);
-mask.val_idx = find(mask1 ~= 0);
-mask.val = mask1(mask.val_idx)+10*eps;
+mask = accumarray(double(xyz_index),kerneldistance,[matrixsize matrixsize matrixsize]);
+mask_idx = find(mask ~= 0);
+mask_idx_zero = find(mask == 0);
+mask(mask_idx_zero) = 1;
+mask = mask(mask_idx)+10*eps;
 
 end
 %test

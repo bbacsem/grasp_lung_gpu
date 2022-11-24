@@ -18,7 +18,6 @@ disp('finish load data')
 close all
 clearvars -except Gx Gy Gz fid Radius matrixsize 
 
-coilsen = zeros(880,880,880,30);
 coilsen_real = single(niftiread('coilsen_real.nii'));
 coilsen_imag = single(niftiread('coilsen_imag.nii'));
 coilsen = complex(coilsen_real, coilsen_imag);
