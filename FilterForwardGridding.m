@@ -21,7 +21,7 @@ IMG = fftshift(fft(fftshift(kspace_gpu,1),[],1),1);
 IMG = fftshift(fft(fftshift(IMG,2),[],2),2);
 IMG = fftshift(fft(fftshift(IMG,3),[],3),3);
 
-IMGF_gpu = IMGF_gpu + IMG.*coil;
+IMGF_gpu = IMGF_gpu + IMG.*conj(coil);
 
 end
 IMGF = gather(IMGF_gpu./win_3d./sqrt(matrixsize*matrixsize*matrixsize));
