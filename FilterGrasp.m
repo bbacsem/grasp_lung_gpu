@@ -2,14 +2,6 @@
 addpath(genpath('/home/work/SemiPark/RECON'))
 addpath(genpath('/home/work/SemiPark/RECON/Utils'))
 addpath(genpath('/home/work/SemiPark/semi_idx'))
-% 
-coilsen_real = niftiread('coilsen_real.nii');
-coilsen_imag = niftiread('coilsen_imag.nii');
-coilsen = complex(coilsen_real, coilsen_imag);
-clear coilsen_real coilsen_imag
-coilsen = single(coilsen);
-% coilsen = coilsen/max(abs(coilsen(:)));
-
 
 [DIR] = DIRset();
 if (DIR.NumFile == 1)
@@ -21,6 +13,19 @@ DataLoad_20220324
 TrajSet_a_UTE
 ReconParam_a_UTE
 [Radius] = RampUpCorr_a_UTE(Info);
+
+tic
+coilsen_real = niftiread('coilsen_real.nii');
+coilsen_imag = niftiread('coilsen_imag.nii');
+coilsen = complex(coilsen_real, coilsen_imag);
+clear coilsen_real coilsen_imag
+coilsen = single(coilsen);
+coilsen = flip(coilsen,1);
+coilsen = flip(coilsen,2);
+coilsen = flip(coilsen,3);
+% coilsen = coilsen/max(abs(coilsen(:)));
+toc
+
 
 disp('finish load data')
 close all
@@ -87,47 +92,51 @@ for nf = 1:nframes
     [kerneldistance{nf}, xyz_index{nf}, index_smth2{nf}, mask, win_3d] = setup3d(ktraj,matrixsize);
 end
 
-[IMGF] = FilterForwardGridding(mc_kdata{1},wu{1}, coilsen, kerneldistance{1}, xyz_index{1}, matrixsize, index_smth2{1}, win_3d);
-figure(1); imagesc(squeeze(abs(IMGF(221:660,440,221:660))));colormap gray
+% [IMGF] = FilterForwardGridding(kdatau{1},wu{1}, coilsen, kerneldistance{1}, xyz_index{1}, matrixsize, index_smth2{1}, win_3d);
+% figure(1); imagesc(squeeze(abs(IMGF(221:660,440,221:660))));colormap gray
 
-% [nufft_recon] = FilterMFGridding(mc_kdata,wu, coilsen, kerneldistance, xyz_index, matrixsize, index_smth2, win_3d);
-% 
-% TolGrad = 1e-4;
-% MaxIter = 100;
-% alpha = 0.01; beta = 0.6; t0=1;
-% %% initializtion
-% lambda = 10*max(nufft_recon(:));
-% g = gradient(nufft_recon,wu, lambda, kdatau,coilsen, nsamps, nsampviews, kerneldistance, xyz_index, index_smth2, win_3d);
-% iter=0; m=nufft_recon; delta_m=-g;
-% 
-% %% Iterations
-% while(sqrt(g(:)'*g(:)) >TolGrad && iter<8)
-%     gamma_denom = g(:)'*g(:);
-%     
-%     t=t0;
-%     f0 = FilterObjective(m,wu, lambda, kdatau,coilsen, nsamps, nsampviews, kerneldistance, xyz_index, index_smth2, win_3d);
-%     f1 = FilterObjective(m+t.*delta_m,wu, lambda, kdatau,coilsen, nsamps, nsampviews, kerneldistance, xyz_index, index_smth2, win_3d);
-%     i=0;
-%     %backtracking line-search
-%     tic
-%     while(f1>f0-alpha*t*abs(g(:)'*delta_m(:)))&&(i<150)
-%         t=beta*t;
-%         f1 = FilterObjective(m+t.*delta_m,wu, lambda, kdatau,coilsen, nsamps, nsampviews, kerneldistance, xyz_index, index_smth2, win_3d);
-%         i = i+1;
-%     end
-%     fprintf('line-search done\n');
-%     eval(['t_linsearch',num2str(i),'= toc;'])
-%     if i>2, t0=t0*beta; end
-%     if i>5, t0=t0*beta*beta; end
-%     if i>8, t0=t0*beta*beta; end
-%     if i<2, t0=t0/beta; end
-%     
-%     m = m+t.*delta_m;
-%     g = gradient(m,wu, lambda, kdatau,coilsen, nsamps, nsampviews, kerneldistance, xyz_index, index_smth2, win_3d);
-%     gamma_num = g(:)'*g(:);
-%     gamma = gamma_num/gamma_denom;
-%     
-%     delta_m = -g +gamma*delta_m;
-%     fprintf('number of iterations: %d \n',iter+1);
-%     iter = iter+1;
-% end
+[nufft_recon] = FilterMFGridding(kdatau,wu, coilsen, kerneldistance, xyz_index, matrixsize, index_smth2, win_3d);
+
+TolGrad = 1e-4;
+MaxIter = 100;
+alpha = 0.01; beta = 0.6; t0=1;
+%% initializtion
+lambda = 10*max(nufft_recon(:));
+g = FilterGradient(nufft_recon,wu, lambda, kdatau,coilsen, nsamps, nsampviews, kerneldistance, xyz_index, index_smth2, win_3d);
+iter=0; m=nufft_recon; delta_m=-g;
+
+%% Iterations
+while(sqrt(g(:)'*g(:)) >TolGrad && iter<8)
+    gamma_denom = g(:)'*g(:);
+    
+    t=t0;
+    f0 = FilterObjective(m,wu, lambda, kdatau,coilsen, nsamps, nsampviews, kerneldistance, xyz_index, index_smth2, win_3d);
+    f1 = FilterObjective(m+t.*delta_m,wu, lambda, kdatau,coilsen, nsamps, nsampviews, kerneldistance, xyz_index, index_smth2, win_3d);
+    i=0;
+    %backtracking line-search
+    tic
+    while(f1>f0-alpha*t*abs(g(:)'*delta_m(:)))&&(i<150)
+        t=beta*t;
+        f1 = FilterObjective(m+t.*delta_m,wu, lambda, kdatau,coilsen, nsamps, nsampviews, kerneldistance, xyz_index, index_smth2, win_3d);
+        i = i+1;
+    end
+    fprintf('line-search done\n');
+    eval(['t_linsearch',num2str(i),'= toc;'])
+    if i>2, t0=t0*beta; end
+    if i>5, t0=t0*beta*beta; end
+    if i>8, t0=t0*beta*beta; end
+    if i<2, t0=t0/beta; end
+    
+    m = m+t.*delta_m;
+    g = FilterGradient(m,wu, lambda, kdatau,coilsen, nsamps, nsampviews, kerneldistance, xyz_index, index_smth2, win_3d);
+    gamma_num = g(:)'*g(:);
+    gamma = gamma_num/gamma_denom;
+    
+    delta_m = -g +gamma*delta_m;
+    fprintf('number of iterations: %d \n',iter+1);
+    file_name = sprintf('iter%d.nii',iter+1);
+    nii = make_nii(abs(m(221:660,221:660,221:660,:)));
+    save_nii(nii,file_name);
+
+    iter = iter+1;
+end

@@ -4,8 +4,10 @@ nframes = size(mcmf_kdata,2);
 IMGF = zeros(matrixsize, matrixsize, matrixsize, nframes,"single");
 
 for Nf = 1:nframes
+    tic
     mc_kdata = mcmf_kdata{Nf};
     IMGF(:,:,:,Nf) = FilterForwardGridding(mc_kdata, wu{Nf}, coilsen, kerneldistance{Nf}, xyz_index{Nf}, matrixsize, index_smth2{Nf}, win_3d);
+    toc
 end
 
 end
