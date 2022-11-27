@@ -1,17 +1,15 @@
-function  [IMGF] = FilterForwardGridding(mc_kdata, coilsen, kerneldistance, xyz_index, matrixsize, index_smth2, win_3d,w)
+function  [IMGF] = FilterForwardGridding(mc_kdata,wu, coilsen, kerneldistance, xyz_index, matrixsize, index_smth2, win_3d)
 
 ncoils = size(mc_kdata,2);
-nviews = size(mc_kdata,3);
-mc_kdata = mc_kdata.*repmat(w,[1 ncoils nviews]);
+mc_kdata = mc_kdata.*wu;
 
 xyz_index_gpu = gpuArray(double(xyz_index));
 kerneldistance_gpu = gpuArray(kerneldistance);
 
+IMGF_gpu = gpuArray(zeros(matrixsize,matrixsize,matrixsize,'single'));
 
-IMGCoil = zeros(matrixsize,matrixsize,matrixsize,ncoils,'single');
-
-% xyz_index = cat(2,x_index,y_index,z_index);
 for i = 1:ncoils
+coil = gpuArray(coilsen(:,:,:,i));
 
 kdata = gpuArray(repmat(reshape(squeeze(mc_kdata(:,i,:)),[],1),[64 1]));
 kdata = kdata(index_smth2);
@@ -23,11 +21,8 @@ IMG = fftshift(fft(fftshift(kspace_gpu,1),[],1),1);
 IMG = fftshift(fft(fftshift(IMG,2),[],2),2);
 IMG = fftshift(fft(fftshift(IMG,3),[],3),3);
 
-IMGCoil(:,:,:,i) = gather(IMG);
-end
+IMGF_gpu = IMGF_gpu + IMG.*coil;
 
-clearvars -except coilsen IMGCoil win_3d matrixsize 
-% IMGF = sum(coilsen.*IMGCoil,4);
-IMGF = sqrt(sum(abs(IMGCoil).^2,4));
-IMGF = IMGF./win_3d./sqrt(matrixsize*matrixsize*matrixsize);
+end
+IMGF = gather(IMGF_gpu./win_3d./sqrt(matrixsize*matrixsize*matrixsize));
 end

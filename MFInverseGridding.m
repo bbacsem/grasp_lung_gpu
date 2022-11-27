@@ -1,4 +1,4 @@
-function mf_kdata = MCMFInverseGridding3D(mf_img,w, coilsen, nsamps, nviews, kerneldistance, x_index, y_index, z_index, index_smth2, win_3d)
+function mf_kdata = MFInverseGridding(mf_img,w, coilsen, nsamps, nviews, kerneldistance, x_index, y_index, z_index, index_smth2, win_3d)
 % image to kspace
 nframes = size(mf_img,4);
 ncoils = size(coilsen,4); 

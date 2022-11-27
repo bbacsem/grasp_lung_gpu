@@ -1,10 +1,11 @@
-function  [mc_kdata] = InverseGridding(img,coilsen, nsamps, nviews, kerneldistance, xyz_index, index_smth2, win_3d)
+function  [mc_kdata] = FilterInverseGridding(img, wu,coilsen, nsamps, nviews, kerneldistance, xyz_index, index_smth2, win_3d)
 %multicoil inverse gridding
 %image to kspace
 ncoils = size(coilsen,4);
 matrixsize = size(img,1);
 mc_kdata = zeros(nsamps,ncoils,nviews);
 xyz_index = gpuArray(xyz_index);
+wu = gpuArray(wu);
 index = matrixsize*matrixsize*(xyz_index(:,3)-1) + matrixsize*(xyz_index(:,2)-1) + xyz_index(:,1);
 
 img_gpu = gpuArray(img);
@@ -27,7 +28,6 @@ for Nc = 1:ncoils
     kdata(index_smth2_gpu) = kdata_rad;
     kdata = reshape(kdata,[nsamps nviews 64]);
     kdata = sum(kdata,3);
-    mc_kdata(:,Nc,:) = gather(kdata./sqrt(matrixsize*matrixsize*matrixsize));
+    mc_kdata(:,Nc,:) = gather(kdata.*wu./sqrt(matrixsize*matrixsize*matrixsize));
 end
-
 end
