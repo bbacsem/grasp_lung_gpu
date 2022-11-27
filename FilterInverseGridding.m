@@ -14,7 +14,7 @@ index_smth2_gpu = gpuArray(index_smth2);
 
 for Nc = 1:ncoils
     coilsen_gpu = gpuArray(coilsen(:,:,:,Nc));
-    img1 = conj(coilsen_gpu).*img_gpu;
+    img1 = coilsen_gpu.*img_gpu;
     % img = img./win_3d;
     kspace_data_grid = fftshift(fft(fftshift(img1,1),[],1),1);
     kspace_data_grid = fftshift(fft(fftshift(kspace_data_grid,2),[],2),2);
