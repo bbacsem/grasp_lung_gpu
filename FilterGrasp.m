@@ -92,10 +92,14 @@ for nf = 1:nframes
     [kerneldistance{nf}, xyz_index{nf}, index_smth2{nf}, mask, win_3d] = setup3d(ktraj,matrixsize);
 end
 
-% [IMGF] = FilterForwardGridding(kdatau{1},wu{1}, coilsen, kerneldistance{1}, xyz_index{1}, matrixsize, index_smth2{1}, win_3d);
-% figure(1); imagesc(squeeze(abs(IMGF(221:660,440,221:660))));colormap gray
-
 [nufft_recon] = FilterMFGridding(kdatau,wu, coilsen, kerneldistance, xyz_index, matrixsize, index_smth2, win_3d);
+
+nii = make_nii(abs(nufft_recon(221:660,221:660,221:660,:)));
+save_nii(nii,'iter0.nii');
+nii = make_nii(real(nufft_recon(221:660,221:660,221:660,:)));
+save_nii(nii,'iter0_real.nii');
+nii = make_nii(imag(nufft_recon(221:660,221:660,221:660,:)));
+save_nii(nii,'iter0_imag.nii');
 
 TolGrad = 1e-4;
 MaxIter = 100;
