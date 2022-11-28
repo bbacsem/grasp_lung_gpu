@@ -22,6 +22,9 @@ coilsen_real = single(niftiread('coilsen_real.nii'));
 coilsen_imag = single(niftiread('coilsen_imag.nii'));
 coilsen = complex(coilsen_real, coilsen_imag);
 clear coilsen_real coilsen_imag
+coilsen = flip(coilsen,1);
+coilsen = flip(coilsen,2);
+coilsen = flip(coilsen,3);
 disp('finish load coil sensitivity')
 
 k_angle = zeros(size(fid,1),3,size(fid,3));
@@ -70,12 +73,16 @@ clear k k1 k2 k3 ktraj
 
 g = gpuDevice();
 reset(g);
-tic
-[IMGF] = MaskForwardGridding(kdatau{1}, coilsen, kerneldistance{1}, xyz_index{1}, matrixsize, index_smth2{1}, win_3d, mask{1});
-toc
-reset(g);
-tic
-[mc_kdata] = InverseGridding(IMGF,coilsen, nsamps, nviews, kerneldistance, xyz_index, index_smth2, win_3d);
-toc
+coilsen = gpuArray(coilsen);
 
-% nii = make_nii(squeeze(abs(IMGF(221:660,221:660,221:660)))); save_nii(nii,'gpu_mask.nii');
+kdatau_gpu = gpuArray(reshape(permute(kdatau{1},[1 3 2]),[],ncoils));
+kerneldistance_gpu = gpuArray(repmat(kerneldistance{1},[1 ncoils]));
+xyz_index_gpu = gpuArray(double(xyz_index{1}));
+win_3d_gpu = gpuArray(win_3d);
+mask_gpu = gpuArray(mask{1});
+index_smth2_gpu = gpuArray(index_smth2{1});
+tic
+[IMGF] = MaskForwardGridding2(kdatau_gpu, coilsen, kerneldistance_gpu, xyz_index_gpu, matrixsize, index_smth2_gpu, win_3d_gpu, mask_gpu);
+toc
+figure(1); imagesc(abs(squeeze(IMGF(:,440,:))));
+nii = make_nii(squeeze(abs(IMGF(221:660,221:660,221:660)))); save_nii(nii,'gpu_mask.nii');

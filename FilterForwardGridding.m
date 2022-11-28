@@ -24,5 +24,5 @@ IMG = fftshift(fft(fftshift(IMG,3),[],3),3);
 IMGF_gpu = IMGF_gpu + IMG.*coil;
 
 end
-IMGF = gather(IMGF_gpu./sqrt(matrixsize*matrixsize*matrixsize));
+IMGF = gather(IMGF_gpu./win_3d./sqrt(matrixsize*matrixsize*matrixsize));
 end
