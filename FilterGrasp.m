@@ -114,7 +114,6 @@ while(sqrt(g(:)'*g(:)) >TolGrad && iter<8)
     f1 = FilterObjective(m+t.*delta_m,wu, lambda, kdatau,coilsen, nsamps, nsampviews, kerneldistance, xyz_index, index_smth2, win_3d);
     i=0;
     %backtracking line-search
-    tic
     while(f1>f0-alpha*t*abs(g(:)'*delta_m(:)))&&(i<150)
         t=beta*t;
         f1 = FilterObjective(m+t.*delta_m,wu, lambda, kdatau,coilsen, nsamps, nsampviews, kerneldistance, xyz_index, index_smth2, win_3d);
@@ -134,9 +133,18 @@ while(sqrt(g(:)'*g(:)) >TolGrad && iter<8)
     
     delta_m = -g +gamma*delta_m;
     fprintf('number of iterations: %d \n',iter+1);
+
     file_name = sprintf('iter%d.nii',iter+1);
+    file_name_real = sprintf('iter%d_real.nii',iter+1);
+    file_name_imag = sprintf('iter%d_imag.nii',iter+1);
     nii = make_nii(abs(m(221:660,221:660,221:660,:)));
+    nii_real = make_nii(real(m(221:660,221:660,221:660,:)));
+    nii_imag = make_nii(imag(m(221:660,221:660,221:660,:)));
     save_nii(nii,file_name);
+    save_nii(nii_real,file_name_real);
+    save_nii(nii_imag,file_name_imag);
+
+    figure(iter+1); imagesc(squeeze(abs(m(221:660,440,221:660,1)))); colormap gray
 
     iter = iter+1;
 end
