@@ -1,12 +1,12 @@
-function grad = gradient(input_img, w, lambda, y,coilsen, nsamps, nviews, kerneldistance, x_index, y_index, z_index, index_smth2, win_3d)
+function grad = MaskGradient(input_img, lambda, y,coilsen, nsamps, nviews, kerneldistance, xyz_index, index_smth2, win_3d, mask)
 % L2grad
-kspace = MCMFInverseGridding3D(input_img, w, coilsen, nsamps, nviews, kerneldistance, x_index, y_index, z_index, index_smth2, win_3d);
+kspace = MaskMFInverseGridding(input_img, coilsen, nsamps, nviews, kerneldistance, xuz_index, index_smth2, win_3d);
 diff_kspace = cell(1,5);
 for i = 1:size(input_img,4)
 diff_kspace{i} = kspace{i}-y{i};
 end
 matrixsize = size(input_img,1);
-recon = MCMFGridding3D(diff_kspace, w,coilsen, kerneldistance, x_index, y_index, z_index, matrixsize, index_smth2, win_3d);
+recon = MaskMFGridding(diff_kspace, coilsen, kerneldistance, xyz_index, matrixsize, index_smth2, win_3d, mask);
 L2grad = 2.*recon;
 
 %L1grad

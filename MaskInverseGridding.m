@@ -1,4 +1,4 @@
-function  [mc_kdata] = InverseGridding(img,coilsen, nsamps, nviews, kerneldistance, xyz_index, index_smth2, win_3d)
+function  [mc_kdata] = MaskInverseGridding(img,coilsen, nsamps, nviews, kerneldistance, xyz_index, index_smth2, win_3d)
 %multicoil inverse gridding
 %image to kspace
 ncoils = size(coilsen,4);
