@@ -83,29 +83,35 @@ clear k k1 k2 k3 ktraj
 % [IMGF] = MCForwardGridding3Daccum(kdatau{1}, coilsen, kerneldistance{1}, x_index{1}, y_index{1}, z_index{1}, matrixsize, index_smth2{1}, win_3d);
 % toc
 % nii = make_nii(squeeze(abs(IMGF(221:660,221:660,221:660)))); save_nii(nii,'8k_accum3.nii');
+[nufft_recon] = MaskMFGridding(kdatau, coilsen, kerneldistance, xyz_index, matrixsize, index_smth2, win_3d, mask);
 
-[nufft_recon] = MCMFGridding3D(kdatau,w, coilsen, kerneldistance, x_index, y_index, z_index, matrixsize, index_smth2, win_3d);
-%% 
+nii = make_nii(abs(nufft_recon(221:660,221:660,221:660,:)));
+save_nii(nii,'iter0.nii');
+nii = make_nii(real(nufft_recon(221:660,221:660,221:660,:)));
+save_nii(nii,'iter0_real.nii');
+nii = make_nii(imag(nufft_recon(221:660,221:660,221:660,:)));
+save_nii(nii,'iter0_imag.nii');
+
 TolGrad = 1e-4;
 MaxIter = 100;
 alpha = 0.01; beta = 0.6; t0=1;
-%% initializtion
+% initializtion
 lambda = 10*max(nufft_recon(:));
-g = gradient(nufft_recon,w, lambda, kdatau,coilsen, nsamps, nsampviews, kerneldistance, x_index, y_index, z_index, index_smth2, win_3d);
+g = MaskGradient(nufft_recon, lambda, kdatau,coilsen, nsamps, nsampviews, kerneldistance, xyz_index, index_smth2, win_3d, mask);
 iter=0; m=nufft_recon; delta_m=-g;
 %% Iterations
-while(sqrt(g(:)'*g(:)) >TolGrad && iter<4)
+while(sqrt(g(:)'*g(:)) >TolGrad && iter<10)
     gamma_denom = g(:)'*g(:);
     
     t=t0;
-    f0 = objective(m,w, lambda, kdatau,coilsen, nsamps, nsampviews, kerneldistance, x_index, y_index, z_index, index_smth2, win_3d);
-    f1 = objective(m+t.*delta_m,w, lambda, kdatau,coilsen, nsamps, nsampviews, kerneldistance, x_index, y_index, z_index, index_smth2, win_3d);
+    f0 = MaskObjective(m, lambda, kdatau,coilsen, nsamps, nsampviews, kerneldistance, xyz_index, index_smth2, win_3d);
+    f1 = MaskObjective(m+t.*delta_m, lambda, kdatau,coilsen, nsamps, nsampviews, kerneldistance, xyz_index, index_smth2, win_3d);
     i=0;
     %backtracking line-search  
     tic
     while(f1>f0-alpha*t*abs(g(:)'*delta_m(:)))&&(i<150)
         t=beta*t;
-        f1 = objective(m+t.*delta_m,w, lambda, kdatau,coilsen, nsamps, nsampviews, kerneldistance, x_index, y_index, z_index, index_smth2, win_3d);
+        f1 = MaskObjective(m+t.*delta_m, lambda, kdatau,coilsen, nsamps, nsampviews, kerneldistance, xyz_index, index_smth2, win_3d);
         i = i+1;
     end
     fprintf('line-search done\n');
@@ -116,15 +122,25 @@ while(sqrt(g(:)'*g(:)) >TolGrad && iter<4)
     if i<2, t0=t0/beta; end
     
     m = m+t.*delta_m;
-    g = gradient(m,w, lambda, kdatau,coilsen, nsamps, nsampviews, kerneldistance, x_index, y_index, z_index, index_smth2, win_3d);
+    g = MaskGradient(m, lambda, kdatau,coilsen, nsamps, nsampviews, kerneldistance, xyz_index, index_smth2, win_3d, mask);
     gamma_num = g(:)'*g(:);
     gamma = gamma_num/gamma_denom;
     
     delta_m = -g +gamma*delta_m;
     fprintf('number of iterations: %d \n',iter+1);
+
     file_name = sprintf('iter%d.nii',iter+1);
+    file_name_real = sprintf('iter%d_real.nii',iter+1);
+    file_name_imag = sprintf('iter%d_imag.nii',iter+1);
     nii = make_nii(abs(m(221:660,221:660,221:660,:)));
+    nii_real = make_nii(real(m(221:660,221:660,221:660,:)));
+    nii_imag = make_nii(imag(m(221:660,221:660,221:660,:)));
     save_nii(nii,file_name);
+    save_nii(nii_real,file_name_real);
+    save_nii(nii_imag,file_name_imag);
+
+    figure(iter+1); imagesc(squeeze(abs(m(221:660,440,221:660,1)))); colormap gray
 
     iter = iter+1;
 end
+
