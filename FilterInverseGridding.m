@@ -28,6 +28,6 @@ for Nc = 1:ncoils
     kdata(index_smth2_gpu) = kdata_rad;
     kdata = reshape(kdata,[nsamps nviews 64]);
     kdata = sum(kdata,3);
-    mc_kdata(:,Nc,:) = gather(kdata.*squeeze(wu(:,Nc,:))./sqrt(matrixsize*matrixsize*matrixsize));
+    mc_kdata(:,Nc,:) = gather(kdata.*squeeze(wu(:,Nc,:))./sqrt(matrixsize*matrixsize*matrixsize)./win_3d);
 end
 end
